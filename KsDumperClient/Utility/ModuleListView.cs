@@ -45,6 +45,7 @@ namespace KsDumperClient.Utility
                 lvi.SubItems.Add(moduleSummary.ModuleFileName);
                 lvi.SubItems.Add(string.Format("0x{0:x8}", moduleSummary.ModuleEntryPoint));
                 lvi.SubItems.Add(string.Format("0x{0:x4}", moduleSummary.ModuleImageSize));
+                lvi.SubItems.Add(moduleSummary.IsWOW64 ? "x86" : "x64");
                 lvi.Tag = moduleSummary;
 
                 Items.Add(lvi);
@@ -112,6 +113,9 @@ namespace KsDumperClient.Utility
                                 break;
                             case 3:
                                 result = p1.ModuleImageSize.CompareTo(p2.ModuleImageSize);
+                                break;
+                            case 4:
+                                result = p1.IsWOW64.CompareTo(p2.IsWOW64);
                                 break;
                         }
 

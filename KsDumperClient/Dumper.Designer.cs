@@ -51,9 +51,13 @@
             this.ModulePath = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.ModuleEntry = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.ModuleSize = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.dumpThisModuleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ModuleType = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.toolStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
+            this.contextMenuStrip2.SuspendLayout();
             this.SuspendLayout();
             // 
             // toolStrip1
@@ -207,8 +211,9 @@
             this.ModuleAddress,
             this.ModulePath,
             this.ModuleEntry,
-            this.ModuleSize});
-            this.moduleList.HideSelection = false;
+            this.ModuleSize,
+            this.ModuleType});
+            this.moduleList.ContextMenuStrip = this.contextMenuStrip2;
             this.moduleList.Location = new System.Drawing.Point(5, 367);
             this.moduleList.Name = "moduleList";
             this.moduleList.Size = new System.Drawing.Size(987, 168);
@@ -216,6 +221,9 @@
             this.moduleList.TabIndex = 6;
             this.moduleList.UseCompatibleStateImageBehavior = false;
             this.moduleList.View = System.Windows.Forms.View.Details;
+            this.moduleList.FullRowSelect = true;
+            this.moduleList.HideSelection = false;
+            this.moduleList.MultiSelect = false;
             // 
             // ModuleAddress
             // 
@@ -231,13 +239,32 @@
             // 
             this.ModuleEntry.DisplayIndex = 3;
             this.ModuleEntry.Text = "Entry Point";
-            this.ModuleEntry.Width = 166;
+            this.ModuleEntry.Width = 150;
             // 
             // ModuleSize
             // 
             this.ModuleSize.DisplayIndex = 2;
             this.ModuleSize.Text = "Image Size";
-            this.ModuleSize.Width = 210;
+            this.ModuleSize.Width = 150;
+            // 
+            // contextMenuStrip2
+            // 
+            this.contextMenuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.dumpThisModuleToolStripMenuItem});
+            this.contextMenuStrip2.Name = "contextMenuStrip2";
+            this.contextMenuStrip2.Size = new System.Drawing.Size(184, 26);
+            // 
+            // dumpThisModuleToolStripMenuItem
+            // 
+            this.dumpThisModuleToolStripMenuItem.Name = "dumpThisModuleToolStripMenuItem";
+            this.dumpThisModuleToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+            this.dumpThisModuleToolStripMenuItem.Text = "Dump this module";
+            this.dumpThisModuleToolStripMenuItem.Click += new System.EventHandler(this.dumpThisModuleToolStripMenuItem_Click);
+            // 
+            // ModuleType
+            // 
+            this.ModuleType.Text = "Image Type";
+            this.ModuleType.Width = 72;
             // 
             // Dumper
             // 
@@ -258,6 +285,7 @@
             this.toolStrip1.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.contextMenuStrip1.ResumeLayout(false);
+            this.contextMenuStrip2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -286,6 +314,9 @@
         private System.Windows.Forms.ColumnHeader ModulePath;
         private System.Windows.Forms.ColumnHeader ModuleEntry;
         private System.Windows.Forms.ColumnHeader ModuleSize;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip2;
+        private System.Windows.Forms.ToolStripMenuItem dumpThisModuleToolStripMenuItem;
+        private System.Windows.Forms.ColumnHeader ModuleType;
     }
 }
 

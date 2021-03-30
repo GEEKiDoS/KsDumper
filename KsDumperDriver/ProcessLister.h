@@ -18,6 +18,7 @@ typedef struct _MODULE_SUMMARY
 	WCHAR ModuleFileName[256];
 	UINT32 ModuleImageSize;
 	PVOID ModuleEntryPoint;
+	BOOLEAN WOW64;
 } MODULE_SUMMARY, *PMODULE_SUMMARY;
 #pragma pack(pop)
 

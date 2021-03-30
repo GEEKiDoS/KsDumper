@@ -165,14 +165,19 @@ NTSTATUS QueryProcessInfo(INT32 pid, PVOID buffer, INT32 bufferSize, PINT32 modu
 	{
 		PPEB64 peb = (PPEB64)PsGetProcessPeb(targetProcess);
 
+		int count = 0;
+		PVOID ModuleBase = NULL;
+		PVOID ModuleEntryPoint = NULL;
+		INT32 ModuleImageSize = 0;
+		PWCHAR ModuleFileName = ExAllocatePool(NonPagedPool, 256 * sizeof(WCHAR));
+		BOOLEAN isWow64 = 0;
+
 		KeStackAttachProcess(targetProcess, &state);
 
 		if (peb->Ldr->Initialized)
 		{
 			PLIST_ENTRY pEntry = NULL;
 			PLIST_ENTRY pHeadEntry = &peb->Ldr->InLoadOrderModuleList;
-
-			int count = 0;
 
 			for (pEntry = pHeadEntry->Flink; pEntry != pHeadEntry; pEntry = pEntry->Flink)
 			{
@@ -185,20 +190,34 @@ NTSTATUS QueryProcessInfo(INT32 pid, PVOID buffer, INT32 bufferSize, PINT32 modu
 
 				if (moduleEntry)
 				{
-					RtlCopyMemory(summary->ModuleFileName, moduleEntry->FullDllName.Buffer, 256 * sizeof(WCHAR));
+					RtlZeroMemory(ModuleFileName, 256 * sizeof(WCHAR));
+					RtlCopyMemory(ModuleFileName, moduleEntry->FullDllName.Buffer, moduleEntry->FullDllName.Length * sizeof(WCHAR));
 
-					summary->ModuleBase = moduleEntry->DllBase;
-					summary->ModuleImageSize = moduleEntry->SizeOfImage;
-					summary->ModuleEntryPoint = moduleEntry->EntryPoint;
+					ModuleBase = moduleEntry->DllBase;
+					ModuleImageSize = moduleEntry->SizeOfImage;
+					ModuleEntryPoint = moduleEntry->EntryPoint;
+					isWow64 = IS_WOW64_PE(ModuleBase);
+
+					KeUnstackDetachProcess(&state);
+
+					RtlCopyMemory(summary->ModuleFileName, ModuleFileName, 256 * sizeof(WCHAR));
+					summary->ModuleBase = ModuleBase;
+					summary->ModuleEntryPoint = ModuleEntryPoint;
+					summary->ModuleImageSize = ModuleImageSize;
+					summary->WOW64 = isWow64;
 
 					summary++;
+
+					KeStackAttachProcess(targetProcess, &state);
 				}
 			}
-
-			*moduleCount = count;
 		}
 
 		KeUnstackDetachProcess(&state);
+
+		ExFreePool(ModuleFileName);
+
+		*moduleCount = count;
 	}
 
 	return STATUS_SUCCESS;

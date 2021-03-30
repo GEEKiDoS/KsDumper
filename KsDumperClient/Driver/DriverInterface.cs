@@ -30,7 +30,7 @@ namespace KsDumperClient.Driver
             if (driverHandle != WinApi.INVALID_HANDLE_VALUE)
             {
                 // Im lazy as fuck, so I just open a LARGE buffer
-                int bufferSize = 1000 * 532;
+                int bufferSize = 1000 * 533;
 
                 IntPtr bufferPointer = MarshalUtility.AllocZeroFilled(bufferSize);
 

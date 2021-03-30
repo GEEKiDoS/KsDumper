@@ -27,7 +27,7 @@ namespace KsDumperClient
         private void Dumper_Load(object sender, EventArgs e)
         {
             Logger.OnLog += Logger_OnLog;
-            Logger.Log("KsDumper v1.1 - By EquiFox");
+            Logger.Log("KsDumper v1.2 - By EquiFox, moded by GEEKiDoS");
         }
 
         private void LoadProcessList()
@@ -129,9 +129,12 @@ namespace KsDumperClient
 
         private void processList_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (processList.SelectedIndices.Count == 0)
+                return;
+
             if (driver.HasValidHandle())
             {
-                if (driver.GetModuleSummaryList(processList.processCache[processList.SelectedIndices[0]].ProcessId, out ModuleSummary[] result) > 0)
+                if (driver.GetModuleSummaryList((processList.SelectedItems[0].Tag as ProcessSummary).ProcessId, out ModuleSummary[] result) > 0)
                 {
                     moduleList.LoadModules(result);
                 }
@@ -139,6 +142,48 @@ namespace KsDumperClient
                 {
                     MessageBox.Show("Unable to retrieve process list !", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
+            }
+        }
+
+        private void dumpThisModuleToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (driver.HasValidHandle())
+            {
+                ProcessSummary targetProcess = processList.SelectedItems[0].Tag as ProcessSummary;
+                ModuleSummary targetModule = moduleList.SelectedItems[0].Tag as ModuleSummary;
+
+                Task.Run(() =>
+                {
+
+                    if (dumper.DumpModule(targetProcess, targetModule, out PEFile peFile))
+                    {
+                        Invoke(new Action(() =>
+                        {
+                            using (SaveFileDialog sfd = new SaveFileDialog())
+                            {
+                                sfd.FileName = targetModule.ModuleFileName.Replace(".exe", "_dump.exe").Replace(".dll", "_dump.dll");
+                                sfd.Filter = "Portable Executable File (.exe, .dll)|*.exe,*.dll";
+
+                                if (sfd.ShowDialog() == DialogResult.OK)
+                                {
+                                    peFile.SaveToDisk(sfd.FileName);
+                                    Logger.Log("Saved at '{0}' !", sfd.FileName);
+                                }
+                            }
+                        }));
+                    }
+                    else
+                    {
+                        Invoke(new Action(() =>
+                        {
+                            MessageBox.Show("Unable to dump target module !", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }));
+                    }
+                });
+            }
+            else
+            {
+                MessageBox.Show("Unable to communicate with driver ! Make sure it is loaded.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

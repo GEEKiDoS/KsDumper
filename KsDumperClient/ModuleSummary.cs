@@ -13,13 +13,15 @@ namespace KsDumperClient
         public ulong ModuleBase { get; private set; }
         public string ModuleFileName { get; private set; }
         public uint ModuleImageSize { get; private set; }
+        public bool IsWOW64 { get; private set; }
 
-        private ModuleSummary(ulong moduleBase, string moduleFileName, uint moduleImageSize, ulong moduleEntryPoint)
+        private ModuleSummary(ulong moduleBase, string moduleFileName, uint moduleImageSize, ulong moduleEntryPoint, bool isWow64)
         {
             ModuleBase = moduleBase;
             ModuleFileName = FixFileName(moduleFileName);
             ModuleImageSize = moduleImageSize;
             ModuleEntryPoint = moduleEntryPoint;
+            IsWOW64 = isWow64;
         }
 
         private string FixFileName(string fileName)
@@ -47,7 +49,8 @@ namespace KsDumperClient
                 reader.ReadUInt64(),
                 Encoding.Unicode.GetString(reader.ReadBytes(512)).Split('\0')[0],
                 reader.ReadUInt32(),
-                reader.ReadUInt64()
+                reader.ReadUInt64(),
+                reader.ReadBoolean()
             );
         }
     }
