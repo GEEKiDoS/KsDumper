@@ -79,7 +79,7 @@ NTSTATUS GetProcessList(PVOID listedProcessBuffer, INT32 bufferSize, PINT32 requ
 		while (rawProcessList->NextEntryOffset)
 		{
 			PEPROCESS targetProcess;
-			PKAPC_STATE state = NULL;
+			KAPC_STATE state;
 
 			if (NT_SUCCESS(PsLookupProcessByProcessId(rawProcessList->UniqueProcessId, &targetProcess)))
 			{
@@ -153,4 +153,53 @@ NTSTATUS GetProcessList(PVOID listedProcessBuffer, INT32 bufferSize, PINT32 requ
 		ExFreePool(listHeadPointer);
 		return STATUS_SUCCESS;
 	}
+}
+
+NTSTATUS QueryProcessInfo(INT32 pid, PVOID buffer, INT32 bufferSize, PINT32 moduleCount)
+{
+	PEPROCESS targetProcess;
+	KAPC_STATE state;
+	PMODULE_SUMMARY summary = (PMODULE_SUMMARY)buffer;
+
+	if (NT_SUCCESS(PsLookupProcessByProcessId(pid, &targetProcess)))
+	{
+		PPEB64 peb = (PPEB64)PsGetProcessPeb(targetProcess);
+
+		KeStackAttachProcess(targetProcess, &state);
+
+		if (peb->Ldr->Initialized)
+		{
+			PLIST_ENTRY pEntry = NULL;
+			PLIST_ENTRY pHeadEntry = &peb->Ldr->InLoadOrderModuleList;
+
+			int count = 0;
+
+			for (pEntry = pHeadEntry->Flink; pEntry != pHeadEntry; pEntry = pEntry->Flink)
+			{
+				if (++count * sizeof(MODULE_SUMMARY) > bufferSize)
+				{
+					return STATUS_INFO_LENGTH_MISMATCH;
+				}
+
+				PLDR_DATA_TABLE_ENTRY moduleEntry = SanitizeUserPointer(CONTAINING_RECORD(pEntry, LDR_DATA_TABLE_ENTRY, InLoadOrderLinks), sizeof(LDR_DATA_TABLE_ENTRY));
+
+				if (moduleEntry)
+				{
+					RtlCopyMemory(summary->ModuleFileName, moduleEntry->FullDllName.Buffer, 256 * sizeof(WCHAR));
+
+					summary->ModuleBase = moduleEntry->DllBase;
+					summary->ModuleImageSize = moduleEntry->SizeOfImage;
+					summary->ModuleEntryPoint = moduleEntry->EntryPoint;
+
+					summary++;
+				}
+			}
+
+			*moduleCount = count;
+		}
+
+		KeUnstackDetachProcess(&state);
+	}
+
+	return STATUS_SUCCESS;
 }

@@ -46,6 +46,11 @@
             this.EntryPointHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.ImageSizeHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.ImageTypeHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.moduleList = new KsDumperClient.Utility.ModuleListView();
+            this.ModuleAddress = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.ModulePath = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.ModuleEntry = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.ModuleSize = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.toolStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
@@ -63,7 +68,7 @@
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Padding = new System.Windows.Forms.Padding(2, 3, 2, 2);
             this.toolStrip1.ShowItemToolTips = false;
-            this.toolStrip1.Size = new System.Drawing.Size(1004, 27);
+            this.toolStrip1.Size = new System.Drawing.Size(1004, 29);
             this.toolStrip1.TabIndex = 4;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -72,7 +77,7 @@
             this.refreshMenuBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.refreshMenuBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.refreshMenuBtn.Name = "refreshMenuBtn";
-            this.refreshMenuBtn.Size = new System.Drawing.Size(50, 19);
+            this.refreshMenuBtn.Size = new System.Drawing.Size(56, 21);
             this.refreshMenuBtn.Text = "Refresh";
             this.refreshMenuBtn.Click += new System.EventHandler(this.refreshMenuBtn_Click);
             // 
@@ -82,16 +87,16 @@
             this.hideSystemProcessMenuBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.hideSystemProcessMenuBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.hideSystemProcessMenuBtn.Name = "hideSystemProcessMenuBtn";
-            this.hideSystemProcessMenuBtn.Size = new System.Drawing.Size(135, 19);
+            this.hideSystemProcessMenuBtn.Size = new System.Drawing.Size(150, 21);
             this.hideSystemProcessMenuBtn.Text = "Show System Processes";
             this.hideSystemProcessMenuBtn.Click += new System.EventHandler(this.hideSystemProcessMenuBtn_Click);
             // 
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.logsTextBox);
-            this.groupBox1.Location = new System.Drawing.Point(5, 525);
+            this.groupBox1.Location = new System.Drawing.Point(5, 541);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(992, 222);
+            this.groupBox1.Size = new System.Drawing.Size(992, 149);
             this.groupBox1.TabIndex = 5;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Logs";
@@ -100,11 +105,11 @@
             // 
             this.logsTextBox.BackColor = System.Drawing.SystemColors.Control;
             this.logsTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.logsTextBox.Location = new System.Drawing.Point(12, 19);
+            this.logsTextBox.Location = new System.Drawing.Point(12, 18);
             this.logsTextBox.Name = "logsTextBox";
             this.logsTextBox.ReadOnly = true;
             this.logsTextBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.logsTextBox.Size = new System.Drawing.Size(968, 197);
+            this.logsTextBox.Size = new System.Drawing.Size(968, 182);
             this.logsTextBox.TabIndex = 0;
             this.logsTextBox.Text = "";
             this.logsTextBox.TextChanged += new System.EventHandler(this.logsTextBox_TextChanged);
@@ -116,25 +121,25 @@
             this.toolStripSeparator1,
             this.openInExplorerToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(182, 76);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(194, 54);
             this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
             // 
             // dumpMainModuleToolStripMenuItem
             // 
             this.dumpMainModuleToolStripMenuItem.Name = "dumpMainModuleToolStripMenuItem";
-            this.dumpMainModuleToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.dumpMainModuleToolStripMenuItem.Size = new System.Drawing.Size(193, 22);
             this.dumpMainModuleToolStripMenuItem.Text = "Dump Main Module";
             this.dumpMainModuleToolStripMenuItem.Click += new System.EventHandler(this.dumpMainModuleToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(178, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(190, 6);
             // 
             // openInExplorerToolStripMenuItem
             // 
             this.openInExplorerToolStripMenuItem.Name = "openInExplorerToolStripMenuItem";
-            this.openInExplorerToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.openInExplorerToolStripMenuItem.Size = new System.Drawing.Size(193, 22);
             this.openInExplorerToolStripMenuItem.Text = "Open In Explorer";
             this.openInExplorerToolStripMenuItem.Click += new System.EventHandler(this.openInExplorerToolStripMenuItem_Click);
             // 
@@ -150,13 +155,16 @@
             this.ImageTypeHeader});
             this.processList.ContextMenuStrip = this.contextMenuStrip1;
             this.processList.FullRowSelect = true;
-            this.processList.Location = new System.Drawing.Point(5, 28);
+            this.processList.HideSelection = false;
+            this.processList.Location = new System.Drawing.Point(5, 26);
             this.processList.MultiSelect = false;
             this.processList.Name = "processList";
-            this.processList.Size = new System.Drawing.Size(992, 491);
+            this.processList.Size = new System.Drawing.Size(992, 335);
+            this.processList.Sorting = System.Windows.Forms.SortOrder.Ascending;
             this.processList.TabIndex = 2;
             this.processList.UseCompatibleStateImageBehavior = false;
             this.processList.View = System.Windows.Forms.View.Details;
+            this.processList.SelectedIndexChanged += new System.EventHandler(this.processList_SelectedIndexChanged);
             // 
             // PIDHeader
             // 
@@ -193,11 +201,50 @@
             this.ImageTypeHeader.Text = "Image Type";
             this.ImageTypeHeader.Width = 72;
             // 
+            // moduleList
+            // 
+            this.moduleList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.ModuleAddress,
+            this.ModulePath,
+            this.ModuleEntry,
+            this.ModuleSize});
+            this.moduleList.HideSelection = false;
+            this.moduleList.Location = new System.Drawing.Point(5, 367);
+            this.moduleList.Name = "moduleList";
+            this.moduleList.Size = new System.Drawing.Size(987, 168);
+            this.moduleList.Sorting = System.Windows.Forms.SortOrder.Ascending;
+            this.moduleList.TabIndex = 6;
+            this.moduleList.UseCompatibleStateImageBehavior = false;
+            this.moduleList.View = System.Windows.Forms.View.Details;
+            // 
+            // ModuleAddress
+            // 
+            this.ModuleAddress.Text = "Base Address";
+            this.ModuleAddress.Width = 221;
+            // 
+            // ModulePath
+            // 
+            this.ModulePath.Text = "Path";
+            this.ModulePath.Width = 372;
+            // 
+            // ModuleEntry
+            // 
+            this.ModuleEntry.DisplayIndex = 3;
+            this.ModuleEntry.Text = "Entry Point";
+            this.ModuleEntry.Width = 166;
+            // 
+            // ModuleSize
+            // 
+            this.ModuleSize.DisplayIndex = 2;
+            this.ModuleSize.Text = "Image Size";
+            this.ModuleSize.Width = 210;
+            // 
             // Dumper
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1004, 756);
+            this.ClientSize = new System.Drawing.Size(1004, 698);
+            this.Controls.Add(this.moduleList);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.processList);
@@ -218,6 +265,7 @@
 
         #endregion
         private KsDumperClient.Utility.ProcessListView processList;
+        private KsDumperClient.Utility.ModuleListView moduleList;
         private System.Windows.Forms.ColumnHeader PIDHeader;
         private System.Windows.Forms.ColumnHeader NameHeader;
         private System.Windows.Forms.ColumnHeader PathHeader;
@@ -234,6 +282,10 @@
         private System.Windows.Forms.ToolStripMenuItem dumpMainModuleToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem openInExplorerToolStripMenuItem;
+        private System.Windows.Forms.ColumnHeader ModuleAddress;
+        private System.Windows.Forms.ColumnHeader ModulePath;
+        private System.Windows.Forms.ColumnHeader ModuleEntry;
+        private System.Windows.Forms.ColumnHeader ModuleSize;
     }
 }
 

@@ -61,6 +61,24 @@ NTSTATUS IoControl(PDEVICE_OBJECT DeviceObject, PIRP Irp)
 			bytesIO = 0;
 		}
 	}
+	else if (controlCode == IO_QUERY_PROCESS_INFO)
+	{
+		if (stack->Parameters.DeviceIoControl.InputBufferLength == sizeof(KERNEL_QUERY_PROCESS_INFO_OPERATION) &&
+			stack->Parameters.DeviceIoControl.OutputBufferLength == sizeof(KERNEL_QUERY_PROCESS_INFO_OPERATION))
+		{
+			PKERNEL_QUERY_PROCESS_INFO_OPERATION request = (PKERNEL_QUERY_PROCESS_INFO_OPERATION)Irp->AssociatedIrp.SystemBuffer;
+
+			QueryProcessInfo(request->targetProcessId, request->bufferAddress, request->bufferSize, &request->moduleCount);
+
+			status = STATUS_SUCCESS;
+			bytesIO = sizeof(KERNEL_QUERY_PROCESS_INFO_OPERATION);
+		}
+		else
+		{
+			status = STATUS_INFO_LENGTH_MISMATCH;
+			bytesIO = 0;
+		}
+	}
 	else
 	{
 		status = STATUS_INVALID_PARAMETER;

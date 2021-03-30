@@ -6,34 +6,30 @@ using System.Windows.Forms;
 
 namespace KsDumperClient.Utility
 {
-    public class ProcessListView : ListView
+    public class ModuleListView : ListView
     {
-        public bool SystemProcessesHidden { get; private set; } = true;
-
         private int sortColumnIndex = 1;
-        public ProcessSummary[] processCache;
+        private ModuleSummary[] moduleCache;
 
-        public ProcessListView()
+        public ModuleListView()
         {
             DoubleBuffered = true;
             Sorting = SortOrder.Ascending;
         }
 
-        public void LoadProcesses(ProcessSummary[] processSummaries)
+        public void LoadModules(ModuleSummary[] moduleSummaries)
         {
-            processCache = processSummaries;
+            moduleCache = moduleSummaries;
             ReloadItems();
         }
 
-        public void ShowSystemProcesses()
+        public void ShowSystemModulees()
         {
-            SystemProcessesHidden = false;
             ReloadItems();
         }
 
-        public void HideSystemProcesses()
+        public void HideSystemModulees()
         {
-            SystemProcessesHidden = true;
             ReloadItems();
         }
 
@@ -43,28 +39,18 @@ namespace KsDumperClient.Utility
 
             string systemRootFolder = Environment.GetFolderPath(Environment.SpecialFolder.Windows).ToLower();
 
-            foreach (ProcessSummary processSummary in processCache)
+            foreach (ModuleSummary moduleSummary in moduleCache)
             {
-                if (SystemProcessesHidden &&
-                    (processSummary.MainModuleFileName.ToLower().StartsWith(systemRootFolder) ||
-                    processSummary.MainModuleFileName.StartsWith(@"\")))
-                {
-                    continue;
-                }
-
-                ListViewItem lvi = new ListViewItem(processSummary.ProcessId.ToString());
-                lvi.SubItems.Add(Path.GetFileName(processSummary.MainModuleFileName));
-                lvi.SubItems.Add(processSummary.MainModuleFileName);
-                lvi.SubItems.Add(string.Format("0x{0:x8}", processSummary.MainModuleBase));
-                lvi.SubItems.Add(string.Format("0x{0:x8}", processSummary.MainModuleEntryPoint));
-                lvi.SubItems.Add(string.Format("0x{0:x4}", processSummary.MainModuleImageSize));
-                lvi.SubItems.Add(processSummary.IsWOW64 ? "x86" : "x64");
-                lvi.Tag = processSummary;
+                ListViewItem lvi = new ListViewItem(string.Format("0x{0:x8}", moduleSummary.ModuleBase));
+                lvi.SubItems.Add(moduleSummary.ModuleFileName);
+                lvi.SubItems.Add(string.Format("0x{0:x8}", moduleSummary.ModuleEntryPoint));
+                lvi.SubItems.Add(string.Format("0x{0:x4}", moduleSummary.ModuleImageSize));
+                lvi.Tag = moduleSummary;
 
                 Items.Add(lvi);
             }
 
-            ListViewItemSorter = new ProcessListViewItemComparer(sortColumnIndex, Sorting);
+            ListViewItemSorter = new ModuleListViewItemComparer(sortColumnIndex, Sorting);
             Sort();
         }
 
@@ -87,16 +73,16 @@ namespace KsDumperClient.Utility
                 }
             }
 
-            ListViewItemSorter = new ProcessListViewItemComparer(e.Column, Sorting);
+            ListViewItemSorter = new ModuleListViewItemComparer(e.Column, Sorting);
             Sort();
         }
 
-        private class ProcessListViewItemComparer : IComparer
+        private class ModuleListViewItemComparer : IComparer
         {
             private readonly int columnIndex;
             private readonly SortOrder sortOrder;
 
-            public ProcessListViewItemComparer(int columnIndex, SortOrder sortOrder)
+            public ModuleListViewItemComparer(int columnIndex, SortOrder sortOrder)
             {
                 this.columnIndex = columnIndex;
                 this.sortOrder = sortOrder;
@@ -106,8 +92,8 @@ namespace KsDumperClient.Utility
             {
                 if ((x is ListViewItem) && (y is ListViewItem))
                 {
-                    ProcessSummary p1 = ((ListViewItem)x).Tag as ProcessSummary;
-                    ProcessSummary p2 = ((ListViewItem)y).Tag as ProcessSummary;
+                    ModuleSummary p1 = ((ListViewItem)x).Tag as ModuleSummary;
+                    ModuleSummary p2 = ((ListViewItem)y).Tag as ModuleSummary;
 
                     if (!(p1 == null || p2 == null))
                     {
@@ -116,25 +102,16 @@ namespace KsDumperClient.Utility
                         switch (columnIndex)
                         {
                             case 0:
-                                result = p1.ProcessId.CompareTo(p2.ProcessId);
+                                result = p1.ModuleBase.CompareTo(p2.ModuleBase);
                                 break;
                             case 1:
-                                result = p1.ProcessName.CompareTo(p2.ProcessName);
+                                result = p1.ModuleFileName.CompareTo(p2.ModuleFileName);
                                 break;
                             case 2:
-                                result = p1.MainModuleFileName.CompareTo(p2.MainModuleFileName);
+                                result = p1.ModuleEntryPoint.CompareTo(p2.ModuleEntryPoint);
                                 break;
                             case 3:
-                                result = p1.MainModuleBase.CompareTo(p2.MainModuleBase);
-                                break;
-                            case 4:
-                                result = p1.MainModuleEntryPoint.CompareTo(p2.MainModuleEntryPoint);
-                                break;
-                            case 5:
-                                result = p1.MainModuleImageSize.CompareTo(p2.MainModuleImageSize);
-                                break;
-                            case 6:
-                                result = p1.IsWOW64.CompareTo(p2.IsWOW64);
+                                result = p1.ModuleImageSize.CompareTo(p2.ModuleImageSize);
                                 break;
                         }
 

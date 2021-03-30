@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 using KsDumperClient.Utility;
 
 using static KsDumperClient.Driver.Operations;
@@ -20,6 +21,65 @@ namespace KsDumperClient.Driver
         public bool HasValidHandle()
         {
             return driverHandle != WinApi.INVALID_HANDLE_VALUE;
+        }
+
+        public int GetModuleSummaryList(int pid, out ModuleSummary[] result)
+        {
+            result = new ModuleSummary[0];
+
+            if (driverHandle != WinApi.INVALID_HANDLE_VALUE)
+            {
+                // Im lazy as fuck, so I just open a LARGE buffer
+                int bufferSize = 1000 * 532;
+
+                IntPtr bufferPointer = MarshalUtility.AllocZeroFilled(bufferSize);
+
+                KERNEL_QUERY_PROCESS_INFO_OPERATION operation = new KERNEL_QUERY_PROCESS_INFO_OPERATION
+                {
+                    targetProcessId = pid,
+                    bufferSize = bufferSize,
+                    bufferAddress = (ulong)bufferPointer.ToInt64()
+                };
+
+                IntPtr operationPointer = MarshalUtility.CopyStructToMemory(operation);
+                int operationSize = Marshal.SizeOf<KERNEL_QUERY_PROCESS_INFO_OPERATION>();
+
+                if (WinApi.DeviceIoControl(driverHandle, IO_QUERY_PROCESS_INFO, operationPointer, operationSize, operationPointer, operationSize, IntPtr.Zero, IntPtr.Zero))
+                {
+                    operation = MarshalUtility.GetStructFromMemory<KERNEL_QUERY_PROCESS_INFO_OPERATION>(operationPointer);
+
+                    if(operation.moduleCount > 0)
+                    {
+                        byte[] managedBuffer = new byte[bufferSize];
+                        Marshal.Copy(bufferPointer, managedBuffer, 0, bufferSize);
+                        Marshal.FreeHGlobal(bufferPointer);
+
+                        result = new ModuleSummary[operation.moduleCount];
+
+                        using (BinaryReader reader = new BinaryReader(new MemoryStream(managedBuffer)))
+                        {
+                            for (int i = 0; i < result.Length; i++)
+                            {
+                                result[i] = ModuleSummary.FromStream(reader);
+                            }
+                        }
+
+                        return result.Length;
+                    }
+                }
+                else
+                {
+                    int errCode = Marshal.GetLastWin32Error();
+
+                    IntPtr tempptr = IntPtr.Zero;
+                    string msg = null;
+                    WinApi.FormatMessage(0x1300, ref tempptr, errCode, 0, ref msg, 255, ref tempptr);
+
+                    MessageBox.Show(msg);
+                }
+            }
+
+            return 0;
         }
 
         public bool GetProcessSummaryList(out ProcessSummary[] result)

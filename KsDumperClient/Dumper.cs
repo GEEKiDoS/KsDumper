@@ -126,5 +126,20 @@ namespace KsDumperClient
             ProcessSummary targetProcess = processList.SelectedItems[0].Tag as ProcessSummary;
             Process.Start("explorer.exe", Path.GetDirectoryName(targetProcess.MainModuleFileName));
         }
+
+        private void processList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (driver.HasValidHandle())
+            {
+                if (driver.GetModuleSummaryList(processList.processCache[processList.SelectedIndices[0]].ProcessId, out ModuleSummary[] result) > 0)
+                {
+                    moduleList.LoadModules(result);
+                }
+                else
+                {
+                    MessageBox.Show("Unable to retrieve process list !", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
     }
 }

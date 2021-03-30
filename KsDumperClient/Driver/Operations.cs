@@ -10,6 +10,8 @@ namespace KsDumperClient.Driver
 
         public static readonly uint IO_COPY_MEMORY = CTL_CODE(FILE_DEVICE_UNKNOWN, 0x1725, METHOD_BUFFERED, FILE_ANY_ACCESS);
 
+        public static readonly uint IO_QUERY_PROCESS_INFO = CTL_CODE(FILE_DEVICE_UNKNOWN, 0x1726, METHOD_BUFFERED, FILE_ANY_ACCESS);
+
         [StructLayout(LayoutKind.Sequential)]
         public struct KERNEL_PROCESS_LIST_OPERATION
         {
@@ -25,6 +27,15 @@ namespace KsDumperClient.Driver
             public ulong targetAddress;
             public ulong bufferAddress;
             public int bufferSize;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct KERNEL_QUERY_PROCESS_INFO_OPERATION
+        {
+            public int targetProcessId;
+            public int moduleCount;
+            public int bufferSize;
+            public ulong bufferAddress;
         }
 
         private static uint CTL_CODE(int deviceType, int function, int method, int access)
